@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>revv</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --surface-2: #1a1a25;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --accent: #a78bfa;
+            --accent-2: #60a5fa;
+            --accent-3: #f472b6;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        @media (pointer: fine) {
+            body { cursor: none; }
+        }
+
+        /* Animated Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-mesh .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent);
+            top: -10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-2);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-3);
+            top: 50%;
+            left: 50%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.95); }
+            75% { transform: translate(40px, 20px) scale(1.05); }
+        }
+
+        /* Noise Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 1.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s ease forwards;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .badge .dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(167, 139, 250, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-2);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Section Styles */
+        section {
+            padding: 6rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* About Section */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-image {
+            position: relative;
+        }
+
+        .about-image .img-frame {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
+            padding: 3px;
+            position: relative;
+        }
+
+        .about-image .img-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 22px;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .about-image .img-inner .avatar-letter {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .about-text h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .about-text p {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-item span {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Cards Section */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .card:hover::before {
+            opacity: 0.05;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(167, 139, 250, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .card:nth-child(1) .card-icon {
+            background: rgba(167, 139, 250, 0.15);
+            color: var(--accent);
+        }
+
+        .card:nth-child(2) .card-icon {
+            background: rgba(96, 165, 250, 0.15);
+            color: var(--accent-2);
+        }
+
+        .card:nth-child(3) .card-icon {
+            background: rgba(244, 114, 182, 0.15);
+            color: var(--accent-3);
+        }
+
+        .card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .skill-item {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .skill-item:hover {
+            border-color: rgba(167, 139, 250, 0.2);
+            transform: translateX(5px);
+        }
+
+        .skill-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(167, 139, 250, 0.1);
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .skill-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .skill-info h4 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .skill-info span {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        /* Contact Section */
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .contact-box h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .contact-box p {
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .social-link {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--surface-2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .social-link svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        footer span {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+
+        /* Loading Screen */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.7s ease, visibility 0.7s ease;
+        }
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .loader-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: loaderPulse 1.2s ease-in-out infinite;
+        }
+        @keyframes loaderPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.92); }
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.12s ease, border-color 0.2s ease;
+            mix-blend-mode: difference;
+        }
+        .custom-cursor-trail {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0.4;
+            filter: blur(2px);
+        }
+        @media (pointer: coarse) {
+            .custom-cursor, .custom-cursor-trail { display: none !important; }
+        }
+
+        /* Vignette */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%);
+        }
+
+        /* Typewriter */
+        .typewriter {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 2px solid var(--accent);
+            white-space: nowrap;
+            animation: blinkCaret 0.75s step-end infinite;
+            max-width: 100%;
+        }
+        @keyframes blinkCaret {
+            0%, 100% { border-color: transparent; }
+            50% { border-color: var(--accent); }
+        }
+
+        /* Marquee */
+        .marquee-section {
+            padding: 2.5rem 0;
+            overflow: hidden;
+            background: var(--surface);
+            border-top: 1px solid rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            position: relative;
+        }
+        .marquee-section::before,
+        .marquee-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .marquee-section::before {
+            left: 0;
+            background: linear-gradient(to right, var(--surface), transparent);
+        }
+        .marquee-section::after {
+            right: 0;
+            background: linear-gradient(to left, var(--surface), transparent);
+        }
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marquee 30s linear infinite;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 2.5rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            white-space: nowrap;
+            transition: color 0.3s ease;
+        }
+        .marquee-item:hover {
+            color: var(--text);
+        }
+        .marquee-item svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent), var(--accent-2), var(--accent-3));
+            opacity: 0.25;
+        }
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: calc(50% + 2rem);
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: calc(50% + 2rem);
+        }
+        .timeline-content {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            max-width: 340px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .timeline-content:hover {
+            border-color: rgba(167, 139, 250, 0.2);
+            transform: scale(1.03);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .timeline-dot {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 50%;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+            z-index: 1;
+        }
+        .timeline-date {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .timeline-content h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .timeline-content p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* 3D Tilt Card */
+        .card.tilt-card {
+            transform-style: preserve-3d;
+        }
+        .card-glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .card:hover .card-glare {
+            opacity: 1;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .back-to-top:hover {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(167, 139, 250, 0.3);
+        }
+
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Chatbot */
+        .chat-widget {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 98;
+        }
+        .chat-toggle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            box-shadow: 0 4px 20px rgba(167, 139, 250, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .chat-toggle:hover {
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 0 8px 30px rgba(167, 139, 250, 0.5);
+        }
+        .chat-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+        .chat-toggle .chat-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0;
+            animation: chatPulse 2s ease-out infinite;
+            z-index: -1;
+        }
+        @keyframes chatPulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        .chat-window {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            width: 360px;
+            max-height: 500px;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .chat-window.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+        .chat-header {
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(96,165,250,0.15));
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+        }
+        .chat-header-info h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .chat-header-info span {
+            font-size: 0.75rem;
+            color: #4ade80;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .chat-header-info span::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #4ade80;
+            border-radius: 50%;
+        }
+        .chat-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: none;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        .chat-close:hover { color: var(--text); }
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 280px;
+        }
+        .chat-message {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: msgPop 0.3s ease;
+        }
+        @keyframes msgPop {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .chat-message.bot {
+            align-self: flex-start;
+            background: var(--surface-2);
+            border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 0.3rem;
+            padding: 0.75rem 1rem;
+            align-self: flex-start;
+            background: var(--surface-2);
+            border-radius: 14px;
+            border-bottom-left-radius: 4px;
+        }
+        .typing-indicator span {
+            width: 7px;
+            height: 7px;
+            background: var(--text-dim);
+            border-radius: 50%;
+            animation: typingBounce 1.4s ease-in-out infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+        .chat-input-area {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .chat-input {
+            flex: 1;
+            background: var(--surface-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: var(--accent);
+        }
+        .chat-send {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+        .chat-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(167,139,250,0.3);
+        }
+        .chat-send svg { width: 18px; height: 18px; }
+
+        /* Store */
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        .product-card {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(167, 139, 250, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.8rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+        }
+        .product-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            background: rgba(167, 139, 250, 0.1);
+            color: var(--accent);
+        }
+        .product-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+        .product-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .product-card p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+        .product-price {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .product-price span {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-dim);
+            -webkit-text-fill-color: var(--text-dim);
+        }
+        .btn-add-cart {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: var(--surface-2);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-add-cart:hover {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(167,139,250,0.3);
+        }
+        .btn-add-cart svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Cart Nav */
+        .cart-nav-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            cursor: none;
+            transition: color 0.3s;
+            padding: 0.25rem 0.5rem;
+        }
+        .cart-nav-btn:hover { color: var(--text); }
+        .cart-nav-btn svg { width: 20px; height: 20px; }
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -8px;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        .cart-badge.show { opacity: 1; transform: scale(1); }
+
+        /* Cart Drawer */
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .cart-overlay.open { opacity: 1; pointer-events: all; }
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 420px;
+            max-width: 100%;
+            height: 100%;
+            background: var(--surface);
+            border-left: 1px solid rgba(255,255,255,0.08);
+            z-index: 201;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cart-drawer.open { transform: translateX(0); }
+        .cart-drawer-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .cart-drawer-header h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+        }
+        .cart-drawer-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: none;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        .cart-drawer-close:hover { color: var(--text); }
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .cart-empty {
+            text-align: center;
+            color: var(--text-dim);
+            padding: 3rem 1rem;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--surface-2);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 1rem;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .cart-item-info span {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .cart-qty {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cart-qty button {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .cart-qty button:hover { border-color: var(--accent); }
+        .cart-qty span {
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+        .cart-remove {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: none;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        .cart-remove:hover { color: #ef4444; }
+        .cart-drawer-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .cart-total strong {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-checkout {
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(167,139,250,0.3);
+        }
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(167,139,250,0.4);
+        }
+
+        /* Checkout Modal */
+        .checkout-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .checkout-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .checkout-modal {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 90%;
+            position: relative;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .checkout-overlay.open .checkout-modal {
+            transform: translateY(0) scale(1);
+        }
+        .checkout-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: none;
+            transition: color 0.2s;
+        }
+        .checkout-close:hover { color: var(--text); }
+        .checkout-modal h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .checkout-modal > p {
+            color: var(--text-dim);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .checkout-summary {
+            background: var(--surface-2);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .checkout-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .checkout-summary-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 0.25rem;
+        }
+        .checkout-ltc { text-align: center; margin-bottom: 1.5rem; }
+        .checkout-ltc-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+        .ltc-address-box {
+            background: var(--surface-2);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .ltc-address-box code {
+            flex: 1;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text);
+            word-break: break-all;
+        }
+        .btn-copy {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn-copy:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        .ltc-qr {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 0.75rem;
+        }
+        .ltc-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .checkout-note {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .contact-box {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .timeline::before { left: 24px; }
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                justify-content: flex-start;
+                padding-left: 55px;
+                padding-right: 0;
+            }
+            .timeline-content { max-width: 100%; }
+            .timeline-dot { left: 24px !important; transform: translateX(-50%); }
+
+            .chat-window { width: calc(100vw - 2rem); left: -0.5rem; bottom: 60px; max-height: 420px; }
+            .chat-widget { bottom: 1rem; left: 1rem; }
+            .store-grid { grid-template-columns: 1fr; }
+            .cart-drawer { width: 100%; }
+            .checkout-modal { padding: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-text">revv</div>
+    </div>
+    <!-- Background -->
+    <div class="bg-mesh">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="noise"></div>
+    <div class="vignette"></div>
+
+    <!-- Navigation -->
+    <nav id="nav">
+        <div class="container">
+            <div class="logo">revv</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#store">Store</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#journey">Journey</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="cart-nav-btn" id="cartNavBtn" aria-label="Open cart">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span>Cart</span>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">
+                <span class="dot"></span>
+                Available for work
+            </div>
+            <h1>Hey, I'm <span class="gradient-text">revv</span></h1>
+            <p class="subtitle typewriter" data-text="16-year-old developer crafting epic Minecraft servers, Discord communities, and stunning websites."></p>
+            <div class="hero-buttons">
+                <a href="#contact" class="btn btn-primary">
+                    Get in Touch
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+                <a href="#services" class="btn btn-secondary">View My Work</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section id="about">
+        <div class="container">
+            <div class="about-grid reveal">
+                <div class="about-image">
+                    <div class="img-frame">
+                        <div class="img-inner">
+                            <span class="avatar-letter">R</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-text">
+                    <h3>About Me</h3>
+                    <p>I'm a passionate 16-year-old developer who loves building things that bring people together. Whether it's an immersive Minecraft server experience, a thriving Discord community, or a beautiful website, I put my heart into every project.</p>
+                    <p>I started coding at a young age and have been hooked ever since. I love learning new technologies and pushing the boundaries of what's possible.</p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h4>16</h4>
+                            <span>Years Old</span>
+                        </div>
+                        <div class="stat-item">
+                            <h4>3+</h4>
+                            <span>Years Exp</span>
+                        </div>
+                        <div class="stat-item">
+                            <h4>50+</h4>
+                            <span>Projects</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>What I Do</h2>
+                <p>I specialize in creating digital experiences that stand out.</p>
+            </div>
+            <div class="cards-grid reveal">
+                <div class="card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <h3>Minecraft Server Dev</h3>
+                    <p>Custom plugins, server optimization, unique game modes, and immersive experiences that keep players coming back for more.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h3>Discord Server Dev</h3>
+                    <p>Custom bots, server automation, role systems, and community management tools to build thriving online communities.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                    </div>
+                    <h3>Website Designer</h3>
+                    <p>Modern, responsive, and visually stunning websites that make a lasting impression and convert visitors into fans.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Store -->
+    <section id="store">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>Store</h2>
+                <p>Pick a service package and let's build something awesome.</p>
+            </div>
+            <div class="store-grid reveal">
+                <div class="product-card">
+                    <span class="product-badge">Popular</span>
+                    <div class="product-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <h3>Minecraft Server Setup</h3>
+                    <p>Full server setup with optimizations, configs, and basic plugins. Ready to launch in 24h.</p>
+                    <div class="product-price">$30<span>USD</span></div>
+                    <button class="btn-add-cart" onclick="addToCart('mc-setup')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <h3>Custom Minecraft Plugin</h3>
+                    <p>A fully custom Spigot/Paper plugin built to your exact specs. Game modes, mechanics, tools.</p>
+                    <div class="product-price">$50<span>USD</span></div>
+                    <button class="btn-add-cart" onclick="addToCart('mc-plugin')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                </div>
+                <div class="product-card">
+                    <span class="product-badge">Hot</span>
+                    <div class="product-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h3>Discord Bot (Basic)</h3>
+                    <p>Custom bot with up to 5 commands. Moderation, fun commands, or utility — you choose.</p>
+                    <div class="product-price">$25<span>USD</span></div>
+                    <button class="btn-add-cart" onclick="addToCart('dc-basic')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    </div>
+                    <h3>Discord Bot (Advanced)</h3>
+                    <p>Advanced bot with dashboard, economy, auto-mod, ticketing, and unlimited commands.</p>
+                    <div class="product-price">$60<span>USD</span></div>
+                    <button class="btn-add-cart" onclick="addToCart('dc-adv')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                    </div>
+                    <h3>Website (Single Page)</h3>
+                    <p>A stunning single-page site with animations, responsive design, and dark aesthetics.</p>
+                    <div class="product-price">$80<span>USD</span></div>
+                    <button class="btn-add-cart" onclick="addToCart('web-single')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                </div>
+                <div class="product-card">
+                    <span class="product-badge">Best Value</span>
+                    <div class="product-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM21 9H3M9 21V9"/></svg>
+                    </div>
+                    <h3>Website (Multi Page)</h3>
+                    <p>Full multi-page website with up to 5 pages, animations, forms, and SEO optimization.</p>
+                    <div class="product-price">$150<span>USD</span></div>
+                    <button class="btn-add-cart" onclick="addToCart('web-multi')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marquee -->
+    <section class="marquee-section">
+        <div class="marquee-track">
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Java</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Kotlin</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> JavaScript</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Node.js</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> HTML5</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> CSS3</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> React</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> MongoDB</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> MySQL</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Spigot API</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Discord.js</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Git</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Python</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Redis</div>
+            <!-- duplicate for seamless loop -->
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Java</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Kotlin</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> JavaScript</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Node.js</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> HTML5</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> CSS3</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> React</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> MongoDB</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> MySQL</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Spigot API</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Discord.js</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Git</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Python</div>
+            <div class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg> Redis</div>
+        </div>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>Tech Stack</h2>
+                <p>Tools and technologies I use to bring ideas to life.</p>
+            </div>
+            <div class="skills-grid reveal">
+                <div class="skill-item">
+                    <div class="skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <div class="skill-info">
+                        <h4>Java / Kotlin</h4>
+                        <span>Minecraft Plugin Development</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <div class="skill-info">
+                        <h4>JavaScript / Node.js</h4>
+                        <span>Discord Bots & Web Apps</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="skill-info">
+                        <h4>HTML / CSS</h4>
+                        <span>Frontend & UI Design</span>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    </div>
+                    <div class="skill-info">
+                        <h4>MySQL / MongoDB</h4>
+                        <span>Database Management</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journey -->
+    <section id="journey">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>My Journey</h2>
+                <p>The path that led me here.</p>
+            </div>
+            <div class="timeline reveal">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2021</div>
+                        <h4>Started Coding</h4>
+                        <p>Discovered programming through Minecraft plugins and wrote my first lines of Java. Instantly hooked.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2022</div>
+                        <h4>First Minecraft Server</h4>
+                        <p>Launched a custom mini-games server with original plugins. Reached 500+ active players.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2023</div>
+                        <h4>Discord Bot Developer</h4>
+                        <p>Built advanced moderation and economy bots for large communities. Expanded into full-stack web dev.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2024</div>
+                        <h4>Freelance Designer</h4>
+                        <p>Started taking on client work for websites, server setups, and Discord community builds.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2025</div>
+                        <h4>Leveling Up</h4>
+                        <p>Continuously learning new frameworks, polishing craft, and building bigger projects than ever before.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+        <div class="container">
+            <div class="contact-box reveal">
+                <h2>Let's Work Together</h2>
+                <p>Have a project in mind? I'm always open to discussing new opportunities and ideas.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Discord">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                    </a>
+                    <a href="#" class="social-link" title="GitHub">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter / X">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="#" class="social-link" title="Email">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+    </button>
+
+    <!-- Chatbot -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-avatar">R</div>
+                <div class="chat-header-info">
+                    <h4>rev</h4>
+                    <span>Online</span>
+                </div>
+                <button class="chat-close" id="chatClose" aria-label="Close chat">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..." autocomplete="off">
+                <button class="chat-send" id="chatSend" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+            </div>
+        </div>
+        <button class="chat-toggle" id="chatToggle" aria-label="Open chat">
+            <div class="chat-pulse"></div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+    </div>
+
+    <!-- Cart Overlay & Drawer -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-header">
+            <h3>Your Cart</h3>
+            <button class="cart-drawer-close" id="cartDrawerClose" aria-label="Close cart">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">Your cart is empty.</div>
+        </div>
+        <div class="cart-drawer-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total">
+                <span>Total</span>
+                <strong id="cartTotal">$0</strong>
+            </div>
+            <button class="btn-checkout" id="btnCheckout">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-overlay" id="checkoutOverlay">
+        <div class="checkout-modal">
+            <button class="checkout-close" id="checkoutClose" aria-label="Close checkout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h2>Complete Your Order</h2>
+            <p>Send the equivalent amount in LTC to the address below.</p>
+            <div class="checkout-summary" id="checkoutSummary"></div>
+            <div class="checkout-ltc">
+                <div class="checkout-ltc-label">Litecoin Address</div>
+                <div class="ltc-address-box">
+                    <code>LW5dyZLs5fsGZNbvsQ1KCpujG9UTrtg83w</code>
+                    <button class="btn-copy" id="btnCopyLtc">Copy</button>
+                </div>
+                <div class="ltc-qr">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=litecoin:LW5dyZLs5fsGZNbvsQ1KCpujG9UTrtg83w" alt="LTC QR Code">
+                </div>
+            </div>
+            <p class="checkout-note">After sending, please contact revv via Discord or Email with your transaction ID. Your order will be processed within 24 hours.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Made with passion by <span>revv</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Reveal on scroll
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const revealPoint = 150;
+                if (elementTop < windowHeight - revealPoint) {
+                    el.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1400);
+        });
+
+        // Custom Cursor
+        const cursor = document.createElement('div');
+        cursor.className = 'custom-cursor';
+        document.body.appendChild(cursor);
+        const trail = document.createElement('div');
+        trail.className = 'custom-cursor-trail';
+        document.body.appendChild(trail);
+
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.style.transform = `translate(${mouseX - 12}px, ${mouseY - 12}px)`;
+        });
+        function animateTrail() {
+            trailX += (mouseX - trailX) * 0.12;
+            trailY += (mouseY - trailY) * 0.12;
+            trail.style.transform = `translate(${trailX - 5}px, ${trailY - 5}px)`;
+            requestAnimationFrame(animateTrail);
+        }
+        animateTrail();
+
+        document.querySelectorAll('a, button, .card, .timeline-content, .social-link, .skill-item').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = `translate(${mouseX - 12}px, ${mouseY - 12}px) scale(1.6)`;
+                cursor.style.borderColor = 'var(--accent-2)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = `translate(${mouseX - 12}px, ${mouseY - 12}px) scale(1)`;
+                cursor.style.borderColor = 'var(--accent)';
+            });
+        });
+
+        // Typewriter Effect
+        const typewriterEl = document.querySelector('.typewriter');
+        if (typewriterEl) {
+            const text = typewriterEl.getAttribute('data-text') || '';
+            typewriterEl.textContent = '';
+            typewriterEl.style.animation = 'none';
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    typewriterEl.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 35);
+                } else {
+                    typewriterEl.style.animation = 'blinkCaret 0.75s step-end infinite';
+                }
+            }
+            setTimeout(type, 1800);
+        }
+
+        // 3D Tilt Cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.classList.add('tilt-card');
+            const glare = document.createElement('div');
+            glare.className = 'card-glare';
+            card.appendChild(glare);
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 12;
+                const rotateY = (centerX - x) / 12;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+                glare.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                glare.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+
+        // Back to Top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Chatbot AI
+        const chatToggle = document.getElementById('chatToggle');
+        const chatClose = document.getElementById('chatClose');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSend = document.getElementById('chatSend');
+        let isChatOpen = false;
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            chatWindow.classList.toggle('open', isChatOpen);
+            if (isChatOpen && chatMessages.children.length === 0) {
+                setTimeout(() => addBotMessage("Hey! I'm rev, revv's AI assistant. Ask me anything about his work, skills, or how to get in touch!"), 400);
+            }
+            if (isChatOpen) setTimeout(() => chatInput.focus(), 300);
+        }
+        chatToggle.addEventListener('click', toggleChat);
+        chatClose.addEventListener('click', toggleChat);
+
+        function addMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `chat-message ${isUser ? 'user' : 'bot'}`;
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.id = 'typingIndicator';
+            indicator.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(indicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
+        }
+
+        function addBotMessage(text) {
+            removeTyping();
+            addMessage(text, false);
+        }
+
+        function getAIResponse(input) {
+            const msg = input.toLowerCase();
+            if (/hello|hi|hey|sup|yo|hola/.test(msg)) {
+                return "Hey there! What's up? How can I help you today?";
+            }
+            if (/minecraft|server|plugin|spigot|bukkit|paper|mc/.test(msg)) {
+                return "Revv builds epic Minecraft servers with custom plugins, unique game modes, and server optimization. He's worked with Spigot, Paper, and Bukkit APIs. Want a server built?";
+            }
+            if (/discord|bot|server.*dev|automod|economy|guild/.test(msg)) {
+                return "Revv creates powerful Discord bots using discord.js and Node.js — moderation, economy systems, custom commands, auto-roles, you name it. Need a bot for your community?";
+            }
+            if (/website|web|design|frontend|ui|site|portfolio/.test(msg)) {
+                return "Revv designs modern, responsive websites with slick animations and dark aesthetics. He works with HTML, CSS, JavaScript, and React. Want a site like this one?";
+            }
+            if (/price|cost|how much|rate|charge|money|pay|budget/.test(msg)) {
+                return "Pricing depends on the project scope. Revv keeps rates fair for the quality delivered. Best way is to reach out via Discord or Email to discuss your specific needs!";
+            }
+            if (/contact|hire|work.*together|project|reach|dm|email|message/.test(msg)) {
+                return "You can reach revv through the social links in the contact section — Discord, GitHub, Twitter/X, or Email. He's always open to cool projects!";
+            }
+            if (/who|about|revv|age|old|years|16|info/.test(msg)) {
+                return "Revv is a 16-year-old developer from the Minecraft/Discord dev scene. He's been coding for 3+ years and has built 50+ projects. Passionate about creating things that bring people together.";
+            }
+            if (/skill|tech|stack|language|code|know|use|framework/.test(msg)) {
+                return "Revv's stack includes Java, Kotlin, JavaScript, Node.js, HTML/CSS, React, MySQL, MongoDB, Redis, Discord.js, Spigot API, and Git. Always learning more!";
+            }
+            if (/journey|story|start|began|history|timeline/.test(msg)) {
+                return "Revv started in 2021 with Minecraft plugins, launched his first server in 2022, got into Discord bots in 2023, started freelancing in 2024, and is leveling up every day since!";
+            }
+            if (/time|available|when|free|busy|open/.test(msg)) {
+                return "Revv is currently available for work! Turnaround depends on project size, but he's pretty quick. Reach out to discuss timelines.";
+            }
+            if (/bye|goodbye|see ya|later|cya/.test(msg)) {
+                return "Catch you later! Hit me up anytime if you have more questions.";
+            }
+            if (/thanks|thank|appreciate|ty|thx/.test(msg)) {
+                return "No problem at all! Happy to help.";
+            }
+            if (/help|what.*do|question/.test(msg)) {
+                return "I can tell you about revv's Minecraft servers, Discord bots, websites, pricing, skills, journey, or how to contact him. What would you like to know?";
+            }
+            return "That's interesting! I'm rev, revv's AI assistant. I can tell you about his Minecraft servers, Discord bots, websites, pricing, or how to contact him. What would you like to know?";
+        }
+
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            addMessage(text, true);
+            chatInput.value = '';
+            showTyping();
+            setTimeout(() => {
+                addBotMessage(getAIResponse(text));
+            }, 900 + Math.random() * 700);
+        }
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Cart System
+        const products = [
+            { id: 'mc-setup', name: 'Minecraft Server Setup', price: 30 },
+            { id: 'mc-plugin', name: 'Custom Minecraft Plugin', price: 50 },
+            { id: 'dc-basic', name: 'Discord Bot (Basic)', price: 25 },
+            { id: 'dc-adv', name: 'Discord Bot (Advanced)', price: 60 },
+            { id: 'web-single', name: 'Website (Single Page)', price: 80 },
+            { id: 'web-multi', name: 'Website (Multi Page)', price: 150 }
+        ];
+        let cart = [];
+
+        function saveCart() {
+            localStorage.setItem('revv_cart', JSON.stringify(cart));
+        }
+        function loadCart() {
+            const saved = localStorage.getItem('revv_cart');
+            if (saved) cart = JSON.parse(saved);
+            updateCartBadge();
+            renderCart();
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            saveCart();
+            updateCartBadge();
+            renderCart();
+            openCart();
+        }
+        window.addToCart = addToCart;
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            saveCart();
+            updateCartBadge();
+            renderCart();
+        }
+        window.removeFromCart = removeFromCart;
+
+        function updateQty(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                removeFromCart(id);
+                return;
+            }
+            saveCart();
+            updateCartBadge();
+            renderCart();
+        }
+        window.updateQty = updateQty;
+
+        function getTotal() {
+            return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+        }
+
+        function updateCartBadge() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const badge = document.getElementById('cartBadge');
+            badge.textContent = totalQty;
+            badge.classList.toggle('show', totalQty > 0);
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const footer = document.getElementById('cartFooter');
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="cart-empty">Your cart is empty.</div>';
+                footer.style.display = 'none';
+                return;
+            }
+            footer.style.display = 'block';
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <span>$${item.price} each</span>
+                    </div>
+                    <div class="cart-qty">
+                        <button onclick="updateQty('${item.id}', -1)">-</button>
+                        <span>${item.qty}</span>
+                        <button onclick="updateQty('${item.id}', 1)">+</button>
+                    </div>
+                    <button class="cart-remove" onclick="removeFromCart('${item.id}')" aria-label="Remove item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            `).join('');
+            document.getElementById('cartTotal').textContent = '$' + getTotal();
+        }
+
+        function openCart() {
+            document.getElementById('cartOverlay').classList.add('open');
+            document.getElementById('cartDrawer').classList.add('open');
+        }
+        function closeCart() {
+            document.getElementById('cartOverlay').classList.remove('open');
+            document.getElementById('cartDrawer').classList.remove('open');
+        }
+
+        document.getElementById('cartNavBtn').addEventListener('click', openCart);
+        document.getElementById('cartOverlay').addEventListener('click', closeCart);
+        document.getElementById('cartDrawerClose').addEventListener('click', closeCart);
+
+        function openCheckout() {
+            closeCart();
+            const summary = document.getElementById('checkoutSummary');
+            summary.innerHTML = cart.map(item => `
+                <div class="checkout-summary-row"><span>${item.name} x${item.qty}</span><span>$${item.price * item.qty}</span></div>
+            `).join('') + `<div class="checkout-summary-row"><span>Total</span><span>$${getTotal()}</span></div>`;
+            document.getElementById('checkoutOverlay').classList.add('open');
+        }
+        function closeCheckout() {
+            document.getElementById('checkoutOverlay').classList.remove('open');
+        }
+
+        document.getElementById('btnCheckout').addEventListener('click', openCheckout);
+        document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
+        document.getElementById('checkoutOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('checkoutOverlay')) closeCheckout();
+        });
+
+        document.getElementById('btnCopyLtc').addEventListener('click', () => {
+            navigator.clipboard.writeText('LW5dyZLs5fsGZNbvsQ1KCpujG9UTrtg83w');
+            const btn = document.getElementById('btnCopyLtc');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 1500);
+        });
+
+        loadCart();
+    </script>
+</body>
+</html>
